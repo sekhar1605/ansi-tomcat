@@ -1,0 +1,33 @@
+---
+- name: installing tomcat server 
+  hosts: all
+  become: yes
+  
+  tasks:
+  - name:installing java
+    apt: 
+      name: openjdk-8-jdk
+      state: present
+      
+  - name: downloading the tomcat server packages
+    get_url:
+      url: https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.73/bin/apache-tomcat-8.5.73.tar.gz
+      dest: /tmp
+  
+  - name: extracting tomcat packages
+    unarchive:
+      src: /tmp/apache-tomcat-8.5.73.tar.gz
+      dest: /tmp
+      remote_src: yes
+  
+  - name: moving the tomcat package to other location
+    command: mv /tmp/apache-tomcat-8.5.73 /usr/local/tomcat
+    
+  - name: creating softlink to the tomcat startup file
+    file:
+    src: /usr/local/tomcat/bin/startup.sh
+    dest: /usr/local/start
+    state: link
+      
+  - name: starting the tomcat server 
+    shell: nohup /usr/local/start
